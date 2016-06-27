@@ -1,2 +1,2 @@
-# blog
-Examples from my blog
+# my blog repository
+Examples from my blog: (https://grebesche.blogspot.com)
