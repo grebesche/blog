@@ -2,6 +2,10 @@ package com.grebesche.restapi;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.grebesche.restapi.db.Task;
+import com.grebesche.restapi.db.TaskRepository;
+import org.hamcrest.CoreMatchers;
+import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,8 +21,13 @@ import org.springframework.web.context.WebApplicationContext;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 
+import static org.junit.Assert.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -30,6 +39,8 @@ public class RestApiApplicationTests {
   private WebApplicationContext context;
   @Autowired
   private ObjectMapper objectMapper;
+  @Autowired
+  private TaskRepository taskRepository;
 
   private MockMvc mvc;
 
@@ -40,27 +51,77 @@ public class RestApiApplicationTests {
         .build();
   }
 
+  @After
+  public void after() {
+    taskRepository.deleteAll();
+  }
+
   @Test
-  public void createTask() throws Exception {
+  public void testCreateTask() throws Exception {
     String name = "My task";
-    Date start = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
-    Date finish = Date.from(LocalDateTime.now().plusDays(2).atZone(ZoneId.systemDefault()).toInstant());
+    LocalDateTime start = LocalDateTime.now();
+    LocalDateTime finish = LocalDateTime.now().plusDays(2);
 
     Task task = new Task();
     task.setName(name);
     task.setStart(start);
     task.setFinish(finish);
 
-    Task returnTask = new Task();
-    returnTask.setId(1L);
-    returnTask.setName(name);
-    returnTask.setStart(start);
-    returnTask.setFinish(finish);
-
     mvc.perform(post("/task")
         .contentType(MediaType.APPLICATION_JSON)
-        .content(objectMapper.writeValueAsString(task)))
-        .andExpect(content().string(objectMapper.writeValueAsString(returnTask)));
+        .content(objectMapper.writeValueAsString(task)));
+
+    List<Task> all = taskRepository.findAll();
+    assertEquals(1, all.size());
+    Task actual = all.get(0);
+    assertNotNull(actual.getId());
+    assertEquals(name, actual.getName());
+    assertEquals(start, actual.getStart());
+    assertEquals(finish, actual.getFinish());
   }
 
+  @Test
+  public void testGetTask() throws Exception {
+    Task task = new Task();
+    task.setName("My task");
+    task.setStart(LocalDateTime.now());
+    task.setFinish(LocalDateTime.now().plusDays(2));
+    taskRepository.save(task);
+
+    mvc.perform(get("/task/" + task.getId()))
+        .andExpect(content().string(objectMapper.writeValueAsString(task)));
+  }
+
+  @Test
+  public void testUpdateTask() throws Exception {
+    Task task = new Task();
+    task.setName("My task");
+    task.setStart(LocalDateTime.now());
+    task.setFinish(LocalDateTime.now().plusDays(2));
+    taskRepository.save(task);
+
+    String updatedName = "My task";
+    task.setName(updatedName);
+
+    mvc.perform(put("/task")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(task)));
+
+    Task updated = taskRepository.findOne(task.getId());
+    assertEquals(updatedName, updated.getName());
+  }
+
+  @Test
+  public void testDeleteTask() throws Exception {
+    Task task = new Task();
+    task.setName("My task");
+    task.setStart(LocalDateTime.now());
+    task.setFinish(LocalDateTime.now().plusDays(2));
+    taskRepository.save(task);
+
+    mvc.perform(delete("/task/" + task.getId()));
+
+    List<Task> all = taskRepository.findAll();
+    assertEquals(0, all.size());
+  }
 }

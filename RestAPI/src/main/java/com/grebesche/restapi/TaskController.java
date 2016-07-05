@@ -28,14 +28,14 @@ public class TaskController {
 
   @RequestMapping(value = "/task", method = RequestMethod.POST)
   @ResponseBody
-  public Task createTask(@RequestBody Task task) {
-    return taskRepository.save(task);
+  public Long createTask(@RequestBody Task task) {
+    return taskRepository.save(task).getId();
   }
 
   @RequestMapping(value = "/task", method = RequestMethod.PUT)
   @ResponseBody
-  public Task updateTask(@RequestBody Task task) {
-    return taskRepository.save(task);
+  public void updateTask(@RequestBody Task task) {
+    taskRepository.save(task);
   }
 
   @RequestMapping(value = "/task/{taskId}", method = RequestMethod.DELETE)
