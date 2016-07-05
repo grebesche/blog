@@ -4,7 +4,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 public class Task {
@@ -17,10 +17,10 @@ public class Task {
   private String name;
 
   @Column(nullable = false)
-  private LocalDateTime start;
+  private Date start;
 
   @Column(nullable = false)
-  private LocalDateTime finish;
+  private Date finish;
 
   public Long getId() {
     return id;
@@ -38,19 +38,19 @@ public class Task {
     this.name = name;
   }
 
-  public LocalDateTime getStart() {
+  public Date getStart() {
     return start;
   }
 
-  public void setStart(LocalDateTime start) {
+  public void setStart(Date start) {
     this.start = start;
   }
 
-  public LocalDateTime getFinish() {
+  public Date getFinish() {
     return finish;
   }
 
-  public void setFinish(LocalDateTime finish) {
+  public void setFinish(Date finish) {
     this.finish = finish;
   }
 

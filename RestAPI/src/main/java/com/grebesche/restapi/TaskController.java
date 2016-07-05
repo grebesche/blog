@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/task")
 public class TaskController {
 
   private TaskRepository taskRepository;
@@ -21,15 +20,27 @@ public class TaskController {
     this.taskRepository = taskRepository;
   }
 
-  @RequestMapping(value = "/{taskId}", method = RequestMethod.GET)
+  @RequestMapping(value = "/task/{taskId}", method = RequestMethod.GET)
   @ResponseBody
   public Task getTask(@PathVariable Long taskId) {
     return taskRepository.findOne(taskId);
   }
 
-  @RequestMapping(value = "/", method = RequestMethod.POST)
+  @RequestMapping(value = "/task", method = RequestMethod.POST)
   @ResponseBody
   public Task createTask(@RequestBody Task task) {
     return taskRepository.save(task);
+  }
+
+  @RequestMapping(value = "/task", method = RequestMethod.PUT)
+  @ResponseBody
+  public Task updateTask(@RequestBody Task task) {
+    return taskRepository.save(task);
+  }
+
+  @RequestMapping(value = "/task/{taskId}", method = RequestMethod.DELETE)
+  @ResponseBody
+  public void deleteTask(@PathVariable Long taskId) {
+    taskRepository.delete(taskId);
   }
 }
